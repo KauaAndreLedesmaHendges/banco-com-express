@@ -11,37 +11,103 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 // Conexão com o banco MySQL (via XAMPP)
+// Alterado para usar o banco 'dashboard' conforme o esquema fornecido
 const db = mysql.createConnection({
-  host: "localhost", // Servidor do MySQL
-  user: "root", // Usuário padrão do XAMPP
-  password: "", // Senha (geralmente vazia no XAMPP)
-  database: "exemplo_db", // Nome do banco que você criou
+  host: "localhost",
+  user: "root",
+  password: "",
+  database: "dashboard",
+});
+
+// Testa conexão ao iniciar
+db.connect((err) => {
+  if (err) {
+    console.error("Erro ao conectar ao banco:", err);
+    process.exit(1);
+  }
+  console.log("Conectado ao banco 'dashboard'");
 });
 
 // ---------- ROTAS ----------
 
-// GET /usuarios → retorna todos os usuários do banco
-app.get("/usuarios", (req, res) => {
-  db.query("SELECT * FROM usuarios", (err, results) => {
-    if (err) throw err; // Se der erro na query, interrompe
-    res.json(results); // Envia o resultado como JSON para o front
+// Retorna dados combinados de users e tasks (para dashboard)
+app.get("/dashboard", (req, res) => {
+  db.query("SELECT id, nome, email FROM users", (err, users) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Erro ao buscar users" });
+    }
+    db.query("SELECT * FROM tasks", (err2, tasks) => {
+      if (err2) {
+        console.error(err2);
+        return res.status(500).json({ error: "Erro ao buscar tasks" });
+      }
+      res.json({ users, tasks });
+    });
   });
 });
 
-// POST /usuarios → insere um novo usuário no banco
-app.post("/usuarios", (req, res) => {
-  const { nome, email } = req.body; // Extrai os dados enviados pelo front
+// GET /users → retorna todos os usuários (sem a senha)
+app.get("/users", (req, res) => {
+  db.query("SELECT id, nome, email FROM users", (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Erro ao buscar usuários" });
+    }
+    res.json(results);
+  });
+});
+
+// POST /users → insere um novo usuário (recebe nome, email, senha)
+app.post("/users", (req, res) => {
+  const { nome, email, senha } = req.body;
+  if (!nome || !email || !senha) {
+    return res.status(400).json({ error: "nome, email e senha são obrigatórios" });
+  }
   db.query(
-    "INSERT INTO usuarios (nome, email) VALUES (?, ?)", // Query SQL com placeholders
-    [nome, email], // Valores que substituem os "?"
+    "INSERT INTO users (nome, email, senha) VALUES (?, ?, ?)",
+    [nome, email, senha],
     (err, result) => {
-      if (err) throw err;
-      res.json({ message: "Usuário adicionado com sucesso!" }); // Retorno de sucesso
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Erro ao inserir usuário" });
+      }
+      res.json({ message: "Usuário adicionado com sucesso!", id: result.insertId });
+    }
+  );
+});
+
+// GET /tasks → retorna todas as tarefas
+app.get("/tasks", (req, res) => {
+  db.query("SELECT * FROM tasks", (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Erro ao buscar tarefas" });
+    }
+    res.json(results);
+  });
+});
+
+// POST /tasks → insere uma nova tarefa (user_id, titulo, descricao?, prioridade?, prazo?)
+app.post("/tasks", (req, res) => {
+  const { user_id, titulo, descricao = null, prioridade = 3, prazo = null } = req.body;
+  if (!user_id || !titulo) {
+    return res.status(400).json({ error: "user_id e titulo são obrigatórios" });
+  }
+  db.query(
+    "INSERT INTO tasks (user_id, titulo, descricao, prioridade, prazo) VALUES (?, ?, ?, ?, ?)",
+    [user_id, titulo, descricao, prioridade, prazo],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Erro ao inserir tarefa" });
+      }
+      res.json({ message: "Tarefa adicionada com sucesso!", id: result.insertId });
     }
   );
 });
 
 // Inicia o servidor na porta 3000
-app.listen(3000, () =>
-  console.log("Servidor rodando em http://localhost:3000")
+app.listen(4500, () =>
+  console.log("Servidor rodando em http://localhost:3306")
 );

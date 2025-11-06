@@ -2,57 +2,45 @@
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
-    <title>Lista de Usuários</title>
+    <title>Dashboard de Tarefas</title>
+    <!-- usar caminho relativo -->
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <h1>Cadastrar Usuário</h1>
+    <h1>Dashboard de Tarefas</h1>
 
-    <form id="form">
-      <input type="text" id="nome" placeholder="Nome" required />
-      <input type="email" id="email" placeholder="Email" required />
-      <button type="submit">Cadastrar</button>
-    </form>
+    <!-- Formulário de Login/Registro -->
+    <div id="authForm">
+        <h2>Login/Registro</h2>
+        <form id="userForm">
+            <input type="text" id="nome" name="nome" placeholder="Nome" required>
+            <input type="email" id="email" name="email" placeholder="Email" required>
+            <input type="password" id="senha" name="senha" placeholder="Senha" required>
+            <button type="submit">Cadastrar/Login</button>
+        </form>
+    </div>
 
-    <h2>Usuários cadastrados</h2>
-    <ul id="lista"></ul>
+    <!-- Área de Tarefas (visível após login) -->
+    <div id="taskArea" style="display: none;">
+        <h2>Adicionar Tarefa</h2>
+        <form id="taskForm">
+            <input type="text" id="titulo" name="titulo" placeholder="Título" required>
+            <textarea id="descricao" name="descricao" placeholder="Descrição"></textarea>
+            <select id="prioridade" name="prioridade">
+                <option value="1">Alta</option>
+                <option value="2">Média</option>
+                <option value="3">Baixa</option>
+            </select>
+            <input type="date" id="prazo" name="prazo">
+            <button type="submit">Adicionar Tarefa</button>
+        </form>
 
-    <script>
-      const form = document.getElementById("form");
-      const lista = document.getElementById("lista");
+        <div class="task-list" id="taskList">
+            <!-- Tarefas serão inseridas aqui via JavaScript -->
+        </div>
+    </div>
 
-      // Função para carregar usuários
-      async function carregarUsuarios() {
-        const resposta = await fetch("/usuarios");
-        const usuarios = await resposta.json();
-        console.log(usuarios);
-
-        lista.innerHTML = "";
-        usuarios.forEach((u) => {
-          const li = document.createElement("li");
-          li.textContent = `${u.nome} - ${u.email}`;
-          lista.appendChild(li);
-        });
-      }
-
-      // Função para enviar novo usuário
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const nome = document.getElementById("nome").value;
-        const email = document.getElementById("email").value;
-
-        await fetch("/usuarios", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nome, email }), // manda o objeto js para o banco como json
-        });
-
-        form.reset(); // limpa os campos com a função nativa para tags form
-        carregarUsuarios(); // atualiza lista
-      });
-
-      // Carrega ao abrir a página
-      carregarUsuarios();
-    </script>
+    <!-- carregar o JS principal (caminho relativo) -->
+    <script src="js/main.js"></script>
   </body>
 </html>
