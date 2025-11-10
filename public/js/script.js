@@ -1,4 +1,3 @@
-// Classes para gerenciamento de estado
 class TaskManager {
     constructor() {
         this.tasks = [];
@@ -141,10 +140,10 @@ class TaskManager {
     }
 }
 
-// Instância global
+
 const taskManager = new TaskManager();
 
-// Event Listeners
+
 document.addEventListener('DOMContentLoaded', () => {
     const authForm = document.getElementById('userForm');
     const taskForm = document.getElementById('taskForm');
