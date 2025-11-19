@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard de Tarefas</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <h1>Dashboard de Tarefas</h1>
+
+
+
+
+    <div id="taskArea">
+        <div class="form-container">
+            <h2>Adicionar Tarefa</h2>
+            <form id="taskForm">
+                <input type="text" id="titulo" name="titulo" placeholder="Título" required>
+                <textarea id="descricao" name="descricao" placeholder="Descrição"></textarea>
+                <select id="prioridade" name="prioridade">
+                    <option value="1">Alta</option>
+                    <option value="2">Média</option>
+                    <option value="3">Baixa</option>
+                </select>
+                <input type="date" id="prazo" name="prazo">
+                <button type="submit">Adicionar Tarefa</button>
+            </form>
+        </div>
+
+        <div class="tasks-container">
+            <h2>Tarefas</h2>
+            <div class="task-list" id="taskList">
+                <p class="empty-message">Carregando tarefas...</p>
+            </div>
+        </div>
+    </div>
+  
+    
+
+    <script src="script.js"></script>
+  </body>
+</html>
